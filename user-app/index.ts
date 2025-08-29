@@ -1,6 +1,6 @@
 import { WebSocketServer , WebSocket } from 'ws';
 
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: 8081});
 
 interface room {
     Socket  : WebSocket[] //create a websockcer array which contatin the interface array 
