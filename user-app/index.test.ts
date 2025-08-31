@@ -1,6 +1,7 @@
 import {beforeAll, describe, expect, test} from "bun:test"
 
-const backend_url = "ws://localhost:8081"
+const backend_url = "ws://localhost:8084"
+const backend_url2 = "ws://localhost:8085"
 describe("chat application", ()=>{
     
     test("Message sent from room 1 reaches another particaipant room 2", async()=>{
@@ -9,7 +10,7 @@ describe("chat application", ()=>{
         const ws1 = new WebSocket(backend_url);
 
         //make the client 2 connect 
-        const ws2 = new WebSocket(backend_url);
+        const ws2 = new WebSocket(backend_url2);
 
 
         //it wait for both of the code to get connected 
@@ -52,7 +53,7 @@ describe("chat application", ()=>{
                 console.log((data as Buffer).toString());
                 const parsedData = JSON.parse(data);
                 expect( parsedData.type == "chat");
-                expect(parsedData.message == "Hi there ")
+                expect(parsedData.message == "Hi there")
                 resolve();
             }
 

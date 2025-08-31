@@ -1,19 +1,39 @@
-import { WebSocketServer , WebSocket } from 'ws';
+import { WebSocketServer , WebSocket as WebSocketwstype } from 'ws';
 
-const wss = new WebSocketServer({ port: 8081});
-
+const port =8085
+const wss = new WebSocketServer({ port : port});
 interface room {
-    Socket  : WebSocket[] //create a websockcer array which contatin the interface array 
+    Socket  : WebSocketwstype[]//create a websockcer array which contatin the interface array 
 
 }
 const rooms : Record<string, room> = {
 
 }
+
+const RELAYER_URL = "ws://localhost:8083"
+const relayerSocket = new WebSocket(RELAYER_URL);
+
+relayerSocket.onmessage = ({data}) =>{
+   
+            const parsedData = JSON.parse(data);
+
+            if(parsedData.type == "chat"){
+                const room = parsedData.room;
+                rooms[room]?.Socket.map(socket => socket.send(data))
+            }
+        
+    
+}
+
+
 wss.on('connection', (ws) => {
 	console.log('New client connected');
+    
+   
+    ws.on('message' , function message(data : string){
 
-	ws.on('message', function message(data : string) {
-            const parsedData = JSON.parse(data);
+           const parsedData = JSON.parse(data);
+            console.log(data);
             if(parsedData.type == "join-room"){
                 const room = parsedData.room;
                 if(!rooms[room]){
@@ -24,24 +44,15 @@ wss.on('connection', (ws) => {
 
                 rooms[room].Socket.push(ws);
             }
-
-            if(parsedData.type == "chat"){
-                const room = parsedData.room;
-                rooms[room]?.Socket.map(socket => socket.send(data))
-            }
-
+        relayerSocket.send(data)
+    })
     });
 
-	ws.on('close', () => {
-		console.log('Client disconnected');
-	});
 
-	ws.on('error', (err) => {
-		console.error('WebSocket error:', err);
-	});
+	
 
-    ws.send("something");
-});
+  
 
-console.log('WebSocket server is running on ws://localhost:8080');
+
+console.log(`WebSocket server is running on ${port}`);
 
